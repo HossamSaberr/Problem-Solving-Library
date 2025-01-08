@@ -76,4 +76,50 @@
         return ans;
     }    
     
+    // How To Get Number Of LIS IN O(N log N) Using Dp And BS
+    
+    pair<int, int> findNumberOfLIS(vector<int>& nums) {
+    if (nums.empty()) return {0, 0};
+    vector<vector<pair<int, int>>> dyn(nums.size() + 1);
+    int max_so_far = 0;
+    for (int i = 0; i < nums.size(); ++i) {
+        int num = nums[i];
+        int l = 0, r = max_so_far;
+        while (l < r) {
+            int mid = l + (r - l) / 2;
+            if (dyn[mid].back().first < num) {
+                l = mid + 1;
+            } else {
+                r = mid;
+            }
+        }
+        int options = 1;
+        int row = l - 1;
+        if (row >= 0) {
+            int ll = 0, rr = dyn[row].size();
+            while (ll < rr) {
+                int mid = ll + (rr - ll) / 2;
+                if (dyn[row][mid].first < num) {
+                    rr = mid;
+                } else {
+                    ll = mid + 1;
+                }
+            }
+            options = dyn[row].back().second;
+            options -= (ll == 0) ? 0 : dyn[row][ll - 1].second;
+            options = (options + MOD) % MOD;
+        }
+
+        dyn[l].push_back({num, (dyn[l].empty() ? options : (dyn[l].back().second + options) % MOD)});
+
+        if (l == max_so_far) {
+            max_so_far++;
+        }
+    }
+
+    cout << max_so_far << " " << dyn[max_so_far - 1].back().second << endl;
+    return {max_so_far, dyn[max_so_far - 1].back().second};
+}
+
+
 //}
