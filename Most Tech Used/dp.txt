@@ -74,3 +74,5 @@ int lis(vector<int> const& a) {
     }
     return ans;
 }
+
+Practise : https://codeforces.com/problemset/problem/1304/D
