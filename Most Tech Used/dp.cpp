@@ -74,7 +74,35 @@
                 ans = l;
         }
         return ans;
+    }    
+    
+    // How To Get That Seq O(N log N) Using Dp And BS
+
+    vector<int> lis(vector<int> const& a , vector<int> const& c) {
+    int n = a.size();
+    vector<int> tail, pos(n), parent(n, -1);
+    for (int i = 0; i < n; ++i) {
+        int x = a[i];
+        auto it = lower_bound(tail.begin(), tail.end(), x);
+        int idx = distance(tail.begin(), it);
+        if (it == tail.end())
+            tail.push_back(x);
+        else
+            *it = x;
+        pos[idx] = i;
+        if (idx > 0) {
+            parent[i] = pos[idx - 1];
+        }
     }
+    vector<int> subseq;
+    for (int i = pos[tail.size() - 1]; i != -1; i = parent[i]) {
+        subseq.push_back(c[i]);
+    }
+    reverse(subseq.begin(), subseq.end());
+    return subseq;
+}
 
     // Practise : https://codeforces.com/problemset/problem/1304/D
+    // Practise : https://atcoder.jp/contests/dp/tasks/dp_q
+    // Practise : https://codeforces.com/problemset/problem/1682/C
 //}
