@@ -1,4 +1,4 @@
-// AtCoder : https://atcoder.jp/contests/dp/tasks/dp_l
+// CSES : https://cses.fi/problemset/task/2220/
 /*
 بسم الله الرحمن الرحيم
 
@@ -19,10 +19,10 @@ const long double pii = 3.1415926536;
 #define Code cin.tie(nullptr);cout.tie(nullptr);
 #define By int t = 1;//cin >> t;
 #define Hossam while(t--) { solve(); }
-#define all(x) begin(x), end(x)
+#define all(x) rbegin(x), rend(x)
 #define NO cout << "NO" << endl
 #define YES cout << "YES" << endl
-#define init memset(dp , -1 , sizeof dp) // Note : use it with 0 , -1 only (because it fills each "byte" `not the whole int` with 0x0 resulting a 0 or 0xFF resulting -1) AND it make it in O(N) if you use vector use std::fill instead
+#define init memset(dp , -1 , sizeof dp) // Note : Never use it with N = 2 * 1e5 !!! && use it with 0 , -1 only (because it fills each "byte" `not the whole int` with 0x0 ansing a 0 or 0xFF ansing -1) AND it make it in O(N) if you use vector use std::fill instead
 
 void Free_Palestine() {
 #ifndef ONLINE_JUDGE
@@ -31,37 +31,35 @@ void Free_Palestine() {
 #endif
 }
 
-int n;
-int h[3005];
-int dp[3005][3005][2];
-int ans;
+int l , r;
+string s;
+int dp[25][2][20][2];
 
-int idk(int l , int r , bool flag) {
-    if(l > r)
-        return 0;
-    int &ret = dp[l][r][flag];
+int idk(int i , bool mx , int prev , bool leadingzero) {
+    if(i == s.size())
+        return 1;
+    int &ret = dp[i][mx][prev][leadingzero];
     if(~ret)
         return ret;
-    if(flag) {
-        int ch1 = idk(l + 1 , r , 0) + h[l];
-        int ch2 = idk(l , r - 1 , 0) + h[r];
-        ret = max(ch1 , ch2);
-    }
-    else {
-        int ch1 = idk(l + 1 , r , 1) - h[l];
-        int ch2 = idk(l , r - 1 , 1) - h[r];
-        ret = min(ch1 , ch2);
+    ret = 0;
+    int end = mx ? s[i] - '0' : 9;
+    for (int j = 0; j <= end; ++j) {
+        if(j == prev && !leadingzero)
+            continue;
+        ret += idk(i + 1 , mx && (j == end) , j , leadingzero && (j == 0));
     }
     return ret;
 }
 
 void solve() {
-    cin >> n;
-    for (int i = 0; i < n; ++i) {
-        cin >> h[i];
-    }
+    cin >> l >> r;
     init;
-    cout << idk(0 , n - 1 , 1) << endl;
+    s = to_string(r);
+    int ans = idk(0 , 1 , 15 , 1);
+    init;
+    s = to_string(l - 1);
+    ans -= idk(0 , 1 , 15 , 1);
+    cout << ans << endl;
 }
 
 int32_t main() {
