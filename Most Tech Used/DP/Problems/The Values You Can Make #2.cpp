@@ -42,10 +42,10 @@ void solve() {
     dp[0][0] = true;
     for(auto x : h) {
         for (int i = k; i >= x; --i) {
-            for (int j = i - x; j >= 0; --j) {
-                if(dp[i - x][j]) {
+            for (int j = i; j >= x; --j) {
+                if(dp[i - x][j - x]) {
+                    dp[i][j - x] = true;
                     dp[i][j] = true;
-                    dp[i][j + x] = true;
                 }
             }
         }
@@ -59,7 +59,7 @@ void solve() {
     for (auto x : ans)
         cout << x << ' ';
 }
-    
+
 int32_t main() {
     Free_Palestine();
     Shity Code By Hossam
