@@ -55,57 +55,68 @@ void pre() {
     }
 }
 
+struct Fenwick {
+    vector<int64_t> bit;
+
+    Fenwick(int size) : bit(size + 2, 0) {}
+
+    void update(int k, int64_t x) {
+        for (; k < bit.size(); k += k & -k) {
+            bit[k] = (bit[k] + x + HashMod) % HashMod;
+        }
+    }
+
+    int64_t query(int k) {
+        int64_t res = 0;
+        for (; k > 0; k -= k & -k) {
+            res = (res + bit[k]) % HashMod;
+        }
+        return res;
+    }
+};
+
 struct PolyHash {
-    vector<int64_t> pref, suf; // Prefix and suffix hashes
+    Fenwick pref, suf; // Prefix and suffix hashes
     string s;
+    int n;
 
-    PolyHash(const string &str) : s(str) {
+    PolyHash(const string &str) : s(str), n(str.size()), pref(n), suf(n) {
         if (!base_pow[0]) pre(); // Initialize base powers if not already done
-
-        int n = s.size();
-        assert(n < N); // Ensure the size is within bounds
-        pref.resize(n + 3, 0), suf.resize(n + 3, 0);
 
         // Compute prefix hashes
         for (int i = 1; i <= n; i++) {
-            pref[i] = MUL(pref[i - 1], base) + s[i - 1] + 997;
-            if (pref[i] >= HashMod) pref[i] -= HashMod;
+            pref.update(i, MUL(base_pow[i - 1], s[i - 1] + 997));
         }
 
         // Compute suffix hashes
         for (int i = n; i >= 1; i--) {
-            suf[i] = MUL(suf[i + 1], base) + s[i - 1] + 997;
-            if (suf[i] >= HashMod) suf[i] -= HashMod;
+            suf.update(n - i + 1, MUL(base_pow[n - i], s[i - 1] + 997));
         }
     }
 
     // Update the hash after a character change
     void update(int pos, char ch) {
-        int n = s.size();
+        // Remove the old character's contribution
+        pref.update(pos + 1, -MUL(base_pow[pos], s[pos] + 997));
+        suf.update(n - pos, -MUL(base_pow[n - pos - 1], s[pos] + 997));
+
+        // Update the character in the string
         s[pos] = ch;
 
-        // Recompute prefix hashes from pos to end
-        for (int i = pos + 1; i <= n; i++) {
-            pref[i] = MUL(pref[i - 1], base) + s[i - 1] + 997;
-            if (pref[i] >= HashMod) pref[i] -= HashMod;
-        }
-
-        // Recompute suffix hashes from pos to start
-        for (int i = pos + 1; i >= 1; i--) {
-            suf[i] = MUL(suf[i + 1], base) + s[i - 1] + 997;
-            if (suf[i] >= HashMod) suf[i] -= HashMod;
-        }
+        // Add the new character's contribution
+        pref.update(pos + 1, MUL(base_pow[pos], s[pos] + 997));
+        suf.update(n - pos, MUL(base_pow[n - pos - 1], s[pos] + 997));
     }
 
     // Get hash for substring [l, r] (0-based indexing)
     uint64_t get_hash(int l, int r) {
-        int64_t h = pref[r + 1] - MUL(base_pow[r - l + 1], pref[l]);
+        int64_t h = pref.query(r + 1) - MUL(base_pow[r - l + 1], pref.query(l));
         return h < 0 ? h + HashMod : h;
     }
 
     // Get reverse hash for substring [l, r] (0-based indexing)
     uint64_t rev_hash(int l, int r) {
-        int64_t h = suf[l + 1] - MUL(base_pow[r - l + 1], suf[r + 2]);
+        int64_t h = suf.query(n - l) - MUL(base_pow[r - l + 1], suf.query(n - r - 1));
         return h < 0 ? h + HashMod : h;
     }
 };
