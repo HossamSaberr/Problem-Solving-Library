@@ -56,33 +56,30 @@ void pre() {
 }
 
 struct PolyHash {
-    // Remove suf vector and usage if reverse hash is not required for more speed
     vector<int64_t> pref, suf; // Prefix and suffix hashes
+    string s;
 
-    template<typename T>
-    PolyHash(const vector<T> &ar) {
+    PolyHash(const string &str) : s(str) {
         if (!base_pow[0]) pre(); // Initialize base powers if not already done
 
-        int n = ar.size();
+        int n = s.size();
         assert(n < N); // Ensure the size is within bounds
         pref.resize(n + 3, 0), suf.resize(n + 3, 0);
 
         // Compute prefix hashes
         for (int i = 1; i <= n; i++) {
-            pref[i] = MUL(pref[i - 1], base) + ar[i - 1] + 997;
+            pref[i] = MUL(pref[i - 1], base) + s[i - 1] + 997;
             if (pref[i] >= HashMod) pref[i] -= HashMod;
         }
 
         // Compute suffix hashes
         for (int i = n; i >= 1; i--) {
-            suf[i] = MUL(suf[i + 1], base) + ar[i - 1] + 997;
+            suf[i] = MUL(suf[i + 1], base) + s[i - 1] + 997;
             if (suf[i] >= HashMod) suf[i] -= HashMod;
         }
     }
 
-    // Constructor for strings
-    explicit PolyHash(const string &str) : PolyHash(vector<char>(str.begin(), str.end())) {}
-    
+    // Update the hash after a character change
     void update(int pos, char ch) {
         int n = s.size();
         s[pos] = ch;
