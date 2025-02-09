@@ -82,6 +82,23 @@ struct PolyHash {
 
     // Constructor for strings
     explicit PolyHash(const string &str) : PolyHash(vector<char>(str.begin(), str.end())) {}
+    
+    void update(int pos, char ch) {
+        int n = s.size();
+        s[pos] = ch;
+
+        // Recompute prefix hashes from pos to end
+        for (int i = pos + 1; i <= n; i++) {
+            pref[i] = MUL(pref[i - 1], base) + s[i - 1] + 997;
+            if (pref[i] >= HashMod) pref[i] -= HashMod;
+        }
+
+        // Recompute suffix hashes from pos to start
+        for (int i = pos + 1; i >= 1; i--) {
+            suf[i] = MUL(suf[i + 1], base) + s[i - 1] + 997;
+            if (suf[i] >= HashMod) suf[i] -= HashMod;
+        }
+    }
 
     // Get hash for substring [l, r] (0-based indexing)
     uint64_t get_hash(int l, int r) {
