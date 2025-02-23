@@ -1,3 +1,35 @@
+// Codeforces : https://codeforces.com/contest/2010/problem/C2
+/*
+بسم الله الرحمن الرحيم
+
+الْحَمْدُ لِلّهِ الَّذِي هَدَانَا لِهَـذَا وَمَا كُنَّا لِنَهْتَدِيَ لَوْلا أَنْ هَدَانَا اللّهُ
+
+اللهم حرر فلسطين من كيد الصهاينة واجعل كيدهم في نحورهم
+اللهم انصر الأقصى والقدس وأهالي غزة وفلسطين اللهم اطمس على أعداء الدين والمدنسين
+*/
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+const long double pii = 3.1415926536;
+#define int long long
+#define endl '\n'
+#define Shity ios_base::sync_with_stdio(false);
+#define Code cin.tie(nullptr);cout.tie(nullptr);
+#define By int t = 1;//cin >> t;
+#define Hossam while(t--) { solve(); }
+#define all(x) begin(x) , end(x)
+#define NO cout << "No" << endl
+#define YES cout << "Yes" << endl
+#define init memset(dp , -1 , sizeof dp) // Note : Never use it with N = 2 * 1e5 !!! && use it with 0 , -1 only (because it fills each "byte" `not the whole int` with 0x0 ansing a 0 or 0xFF ansing -1) AND it make it in O(N) if you use vector use std::fill instead
+
+void Free_Palestine() {
+#ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+#endif
+}
 
 struct KMP {
     //keywords: substring , prefix , suffix , equality
@@ -92,8 +124,9 @@ struct KMP {
         for (int i = (int) s.size() - 1; i > 0; i--) {
             freq[temp.failure[i - 1]] += freq[i];
         }
-        freq.erase(freq.begin()); // remove this line if you case about the whole string not prober prefix
-        for (auto &val: freq)val++;
+        for (int i = 0; i <= s.size(); i++) {
+            ++freq[i];
+        }
         return freq;
     }
     static int CountUniquePrefixes(const string &s){
@@ -150,3 +183,28 @@ struct KMPs
         return res;
     }
 };
+
+void solve() {
+    string s;
+    cin >> s;
+    KMP k;
+    k.build(s);
+    vector<int> f = k.failure;
+    if(f.back() > s.size() / 2) {
+        YES;
+        for (int i = 0; i < f.back(); ++i) {
+            cout << s[i];
+        }
+        cout << endl;
+    }
+    else
+        NO;
+}
+
+int32_t main() {
+    Free_Palestine();
+    Shity Code By Hossam
+    return 0;
+}
+
+// الحمدلله رب العالمين
