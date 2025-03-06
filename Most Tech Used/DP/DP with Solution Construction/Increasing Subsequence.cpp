@@ -59,14 +59,13 @@ void build(int i) {
     cout << h[i] << ' ';
     int nextIdx = -1;
     for (int j = i + 1; j < n; ++j) {
-        if (h[j] > h[i] && dp[i] == dp[j] + 1 && !vis[j]) {
+        if (h[j] > h[i] && dp[i] == dp[j] + 1) {
             if (nextIdx == -1 || h[j] < h[nextIdx]) {
                 nextIdx = j;
             }
         }
     }
     if (nextIdx != -1) {
-        vis[nextIdx] = 1;
         build(nextIdx);
     }
 }
