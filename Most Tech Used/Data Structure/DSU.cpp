@@ -4,11 +4,11 @@ struct DSU {
 
     // Constructor initializes DSU for 'n' elements.
     DSU(int n) {
-        parent.resize(n);
-        rank.assign(n, 0);
-        compSize.assign(n, 1);
+        parent.resize(n + 1);
+        rank.assign(n + 1, 0);
+        compSize.assign(n + 1, 1);
         components = n;
-        for (int i = 0; i < n; ++i)
+        for (int i = 0; i <= n; ++i)
             parent[i] = i;
     }
 
