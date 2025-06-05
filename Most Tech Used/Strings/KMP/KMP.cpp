@@ -1,3 +1,25 @@
+/*              Z-function             */
+// calcuate the z-values for all string in O(n).
+// z[i] is the length of the longest prefix substring starting at s[i..] which is also a prefix of s[0..].
+// z[i] <= (n - i), s[0..z[i][ == s[i..i+z[i][, ...
+// the first entry of Z array is meaning less as complete string is always prefix of itself, so z[0] = 0.
+// usefull for string matching (s = s + '#' + t), u can replace the string with a vector of numbers, ...
+// s + '?' + t, t + '?' + s, rev(s) + '?' + t, rev(t) + '?' + s, ...
+ 
+
+
+
+
+
+
+/*              Prefix/Failure function              */
+// calcuate the pi-values for all string in O(n).
+// pi[i] is the length of the longest suffix substring ending at s[...i] which is also a prefix of s[0..] --> (s[0 : pi[i][ == s]i - pi[i] : i]).
+// taking the length i for index i is meaning less as the prefix of a complete string is always suffix of itself, so pi[i] <= i (0-indexed).
+// usefull for string matching (s = s + '#' + t), KMP, u can replace the string with a vector of numbers, ...
+// s + '?' + t, t + '?' + s, rev(s) + '?' + t, rev(t) + '?' + s, ...
+// https://cp-algorithms.com/string/prefix-function.html
+
 struct KMP {
     //keywords: substring , prefix , suffix , equality
     //typically processing for the pattern similar to the input

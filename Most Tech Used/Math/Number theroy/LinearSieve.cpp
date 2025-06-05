@@ -46,3 +46,32 @@ struct LinearSieve {
         return factors;
     }
 };
+
+
+// O(N)
+void linearSieve(ll n, v64 &primes, v64 &spf)
+{
+    vector<bool> isprime(n + 1, true); // true means the number is prime
+    spf.resize(n + 1);                 // Smallest prime factor (SPF)
+    isprime[0] = isprime[1] = false;   // 0 and 1 are not prime
+ 
+    for (ll i = 2; i <= n; i++)
+    {
+        if (isprime[i])
+        {
+            primes.push_back(i); // `i` is prime
+            spf[i] = i;          // Smallest prime factor of a prime is itself
+        }
+ 
+        // Mark multiples of `i`
+        for (ll p : primes)
+        {
+            if (i * p > n)
+                break;
+            isprime[i * p] = false; // `i * p` is not prime
+            spf[i * p] = p;         // Smallest prime factor of `i * p`
+            if (i % p == 0)
+                break;
+        }
+    }
+}
