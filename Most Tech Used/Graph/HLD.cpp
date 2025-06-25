@@ -1,69 +1,85 @@
-class heavy_light_decomposition {
-    const int n;
-    vector<vector<int>> g;
-    vector<int> in, out, size, head, par;
-    int it;
-    void erase_par(int v, int prev) {
-        par[v] = prev;
-        for (auto& u : g[v]) {
-            if (u == g[v].back()) break;
-            if (u == prev) swap(u, g[v].back());
-            erase_par(u, v);
+
+
+struct HLD {
+    // big[v] will always be stored in adj[v][0]
+    // who[x]: node number with id(tin) = x
+
+    vector<int> par, sz, head, tin, tout, who, depth , val;
+
+    int dfs1(int u, vector<vector<pair<int , int>>> &adj) {
+        for (auto &[v,w]: adj[u]) {
+            if (v == par[u])continue;
+            depth[v] = depth[u] + 1;
+            par[v] = u;
+            val[v] = w;
+            sz[u] += dfs1(v, adj);
+            if (sz[v] > sz[adj[u][0].first] || adj[u][0].first == par[u])
+                swap(v, adj[
+                        u][0].first);
         }
-        g[v].pop_back();
+        return sz[u];
     }
-    void dfs1(int v) {
-        for (auto& u : g[v]) {
-            dfs1(u);
-            size[v] += size[u];
-            if (size[u] > size[g[v][0]]) swap(u, g[v][0]);
+
+    void dfs2(int u, int &timer, const vector<vector<pair<int , int>>> &adj) {
+        tin[u] = ++timer;
+        int heavy = (adj[u].size() && adj[u][0].first != par[u] ? adj[u][0].first : -1);
+        if (heavy != -1) {
+            head[heavy] = head[u];
+            dfs2(heavy, timer, adj);
         }
-    }
-    void dfs2(int v) {
-        in[v] = it++;
-        for (auto u : g[v]) {
-            head[u] = (u == g[v][0] ? head[v] : u);
-            dfs2(u);
+        for (auto [v,w] : adj[u]) {
+            if (v == par[u] || v == heavy) continue;
+            head[v] = v;
+            dfs2(v, timer, adj);
         }
-        out[v] = it;
+        tout[u] = timer;
     }
-public:
-    heavy_light_decomposition(int n_)
-        : n(n_), g(n), in(n, -1), out(n, -1), size(n, 1), head(n), par(n, -1), it(0) {}
-    heavy_light_decomposition(const vector<vector<int>>& G)
-        : n(G.size()), g(G), in(n, -1), out(n, -1), size(n, 1), head(n), par(n, -1), it(0) {}
-    void add_edge(int u, int v) {
-        g[u].push_back(v);
-        g[v].push_back(u);
+
+    HLD(vector<vector<pair<int , int>>> adj, int r = 1)
+            : par(adj.size(), -1), sz(adj.size(), 1),
+              head(adj.size(), r), tin(adj.size()), who(adj.size()),
+              tout(adj.size()),
+              depth(adj.size()),val(adj.size()) {
+        dfs1(r, adj);
+        int x = 0;
+        dfs2(r, x, adj);
+        for (int i = 0; i < adj.size(); ++i)
+            who[tin[i]] = i;
     }
-    void build(int rt = 0) {
-        for (auto v : g[rt]) erase_par(v, rt);
-        dfs1(rt);
-        head[rt] = rt;
-        dfs2(rt);
-    }
-    int get_id(int v) {
-        return in[v];
-    }
-    int get_lca(int u, int v) {
-        while (true) {
-            if (in[u] > in[v]) swap(u, v);
-            if (head[u] == head[v]) return u;
-            v = par[head[v]];
-        }
-    }
-    int sub_size(int u){
-        return size[u];
-    }
-    void path_query(int u, int v, function<void(int, int)> f) {
-        while (true) {
-            if (in[u] > in[v]) swap(u, v);
-            f(max(in[head[v]], in[u]), in[v] + 1);
-            if (head[u] == head[v]) return;
-            v = par[head[v]];
+
+    vector<pair<int, int>> path(int u, int v) {
+        vector<pair<int, int>> res;
+        for (;; v = par[head[v]]) {
+            if (depth[head[u]] > depth[head[v]])swap(u, v);
+            if (head[u] != head[v]) {
+                res.emplace_back(tin[head[v]], tin[v]);
+            } else {
+                if (depth[u] > depth[v])swap(u, v);
+                res.emplace_back(tin[u], tin[v]); // if the query in edges you need to skip lca by doing tin[u] + 1
+                return res;
+            }
         }
     }
-    void subtree_query(int v, function<void(int, int)> f) {
-        f(in[v], out[v]);
+
+    pair<int, int> subtree(int u) {
+        return {tin[u], tout[u]};
+    }
+
+    int dist(int u, int v) {
+        return depth[u] + depth[v] - 2 * depth[lca(u, v)];
+    }
+
+    int lca(int u, int v) {
+        for (;; v = par[head[v]]) {
+            if (depth[head[u]] > depth[head[v]])swap(u, v);
+            if (head[u] == head[v]) {
+                if (depth[u] > depth[v])swap(u, v);
+                return u;
+            }
+        }
+    }
+
+    bool isAncestor(int u, int v) {
+        return tin[u] <= tin[v] && tout[u] >= tout[v];
     }
 };
