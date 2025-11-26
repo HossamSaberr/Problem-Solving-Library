@@ -39,10 +39,10 @@ struct XorBasis {
     }
 
     // Check if x can be represented as XOR of some subset of basis elements
-    bool canMake(long long x) {
+    bool canMake(long long x , int time = 0) {
         for (int i = 60; i >= 0; i--) {
             if (!(x & (1LL << i))) continue;
-            if (!b[i]) return false;
+            if (!b[i] || timer[i] < time) return false;
             x ^= b[i];
         }
         return true;
@@ -188,3 +188,4 @@ struct XorBasis {
                 add(other.b[i]);
     }
 };
+
