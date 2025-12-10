@@ -197,8 +197,50 @@ struct XorBasis {
             }
         }
         
-        // Final sanity check (though logic guarantees this if 0 <= K)
-        return get_min_lim(ans, -1); 
+        return ans; 
+    }
+
+    // Get MAX value using lower bits
+    int get_max_lim(int val, int limit_bit) {
+        for (int i = limit_bit; i >= 0; i--) {
+            if (!basis[i]) continue;
+            // If XORing makes it BIGGER, do it
+            val = max(val, val ^ basis[i]);
+        }
+        return val;
+    }
+    
+    // Find Minimum XOR sum such that result >= K
+    int query_min_constrained(int K) {
+        int ans = 0;
+    
+        for (int i = 60; i >= 0; i--) {
+            if (!basis[i]) continue;
+    
+            int ch1 = ans;              // Option 1: Don't use basis[i]
+            int ch2 = ans ^ basis[i];   // Option 2: Use basis[i]
+    
+            // Look Ahead: meaningful check
+            // Can ch1 eventually reach >= K? We check its MAX potential.
+            int max_potential_1 = get_max_lim(ch1, i - 1);
+            int max_potential_2 = get_max_lim(ch2, i - 1);
+    
+            bool can_1 = (max_potential_1 >= K);
+            bool can_2 = (max_potential_2 >= K);
+    
+            if (can_1 && can_2) {
+                // Both paths can satisfy the constraint >= K.
+                // Since we want the OVERALL MINIMUM, we pick the smaller current value.
+                ans = min(ch1, ch2);
+            } else if (can_1) {
+                // Only ch1 can eventually reach K
+                ans = ch1;
+            } else {
+                // Only ch2 can eventually reach K (we know at least one must be true from initial check)
+                ans = ch2;
+            }
+        }
+        return ans;
     }
 
     // Apply AND to all basis elements and rebuild the basis
@@ -235,5 +277,6 @@ struct XorBasis {
                 add(other.b[i]);
     }
 };
+
 
 
