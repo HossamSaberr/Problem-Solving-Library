@@ -154,6 +154,53 @@ struct XorBasis {
         return res;
     }
 
+    // Returns the minimum value obtainable from 'val' using basis elements 
+    // from index 'limit_bit' down to 0.
+    int get_min_lim(int val, int limit_bit) {
+        for (int i = limit_bit; i >= 0; i--) {
+            if (!basis[i]) continue;
+            // Greedy minimization: if XORing makes it smaller, do it
+            val = min(val, val ^ basis[i]);
+        }
+        return val;
+    }
+
+    // Query: Maximize XOR sum such that result <= K
+    long long query_max_constrained(long long K) {
+        long long ans = 0;
+
+        for (int i = 60; i >= 0; i--) {
+            // Optimization: if basis[i] is 0, we can't change bit i anyway
+            if (!basis[i]) continue;
+
+            long long option_keep = ans;
+            long long option_change = ans ^ basis[i];
+
+            // Look ahead: What is the BEST CASE (smallest value) for each path?
+            // We pass i - 1 because we can only use lower bits to fix the number later
+            long long min_keep = get_min_lim(option_keep, i - 1);
+            long long min_change = get_min_lim(option_change, i - 1);
+
+            bool can_keep = (min_keep <= K);
+            bool can_change = (min_change <= K);
+
+            if (can_keep && can_change) {
+                // If both paths are valid (can stay under K), 
+                // pick the one that gives the larger value NOW.
+                ans = max(option_keep, option_change);
+            } else if (can_change) {
+                // If we MUST change to stay under K (or to fit valid path)
+                ans = option_change;
+            } else {
+                // If we MUST keep (or neither is valid, which implies K < 0 impossible)
+                ans = option_keep;
+            }
+        }
+        
+        // Final sanity check (though logic guarantees this if 0 <= K)
+        return get_min_lim(ans, -1); 
+    }
+
     // Apply AND to all basis elements and rebuild the basis
     void AND(long long x) {
         r = 0;
@@ -188,4 +235,5 @@ struct XorBasis {
                 add(other.b[i]);
     }
 };
+
 
